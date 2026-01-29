@@ -3,10 +3,8 @@
 # Copyright (C) 2014 Sean Poyser and Richard Dean (write2dixie@gmail.com)
 #
 #      Modified for FTV Guide (09/2014 onwards)
-#      by Thomas Geppert [bluezed] - bluezed.apps@gmail.com
-#
-#      Modified for TV Guide Fullscreen (2016)
-#      by primaeval - primaeval.dev@gmail.com
+#      Modified for TV Guide Fullscreen
+#      moddet by derandere
 #
 # This Program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

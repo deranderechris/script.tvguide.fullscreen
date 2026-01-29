@@ -22,7 +22,7 @@ if __name__ == '__main__':
             xbmcvfs.mkdirs("special://profile/addon_data/script.tvguide.fullscreen/channel_logos/")
             for channel in channelList:
                 from_file = channel.logo
-                regex = '[%s]' % re.escape('[]/\:')
+                regex = '[%s]' % re.escape('[]/:')
                 xbmc.log(regex)
                 ext = from_file.rsplit('.',1)[-1]
                 to_file = "special://profile/addon_data/script.tvguide.fullscreen/channel_logos/%s.%s" % (re.sub(regex,' ',channel.title),ext)

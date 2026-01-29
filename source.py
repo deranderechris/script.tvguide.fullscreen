@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-#      Copyright (C) 2013 Tommy Winther
-#      http://tommy.winther.nu
-#
-#      Modified for FTV Guide (09/2014 onwards)
-#      by Thomas Geppert [bluezed] - bluezed.apps@gmail.com
-#
-#      Modified for TV Guide Fullscreen (2016)
-#      by primaeval - primaeval.dev@gmail.com
+#      Copyright (C) 2026 derandere
+#      Python 3 update by derandere
+#      moddet by derandere
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -231,7 +226,7 @@ class Database(object):
                 lines = data.splitlines()
                 addon = "script.tvguide.fullscreen"
                 for line in lines:
-                    match = re.search('^\[(.*?)\]$',line)
+                    match = re.search(r'^\[(.*?)\]$',line)
                     if match:
                         addon = match.group(1)
                         if addon not in streams:
@@ -2019,9 +2014,9 @@ def unescape2(text):
                 pass
         return text # leave as is
 
-    text = re.sub("&#?\w+;", fixup, text)
-    text = re.sub("&([^;]*?<)",r"&amp;\1",text)
-    text = re.sub("<3","HEART",text)
+    text = re.sub(r"&#?\w+;", fixup, text)
+    text = re.sub(r"&([^;]*?<)", r"&amp;\1", text)
+    text = re.sub(r"<3", "HEART", text)
 
     return text
 
@@ -2522,7 +2517,7 @@ class TVGUKSource(Source):
             match = re.search('(.*?)<',channel)
             if match:
                 name = match.group(1)
-            match = re.search('"(https?://my.tvguide.co.uk/channel_logos/.*?\.png)"',channel)
+            match = re.search(r'"(https?://my.tvguide.co.uk/channel_logos/.*?\.png)"',channel)
             if match:
                 logo = match.group(1)
             if name:
@@ -2547,17 +2542,17 @@ class TVGUKSource(Source):
                     start = match.group(1)
                     end = match.group(2)
                     title = match.group(3)
-                    match = re.search('(.*) \(([0-9]{4})\)',title)
+                    match = re.search(r'(.*) \(([0-9]{4})\)',title)
                     if match:
                         year = match.group(2)
                         is_movie = True
                 match = re.search('qt-text="(.*?)"',programme)
                 if match:
                     text = match.group(1)
-                    description = re.sub('<div.*?</div>','',text)
-                    description = re.sub('<br>','',description)
-                    description = re.sub('£','',description)
-                match = re.search('Season ([0-9]*)\. Episode ([0-9]*) of ([0-9]*)\.',programme)
+                    description = re.sub(r'<div.*?</div>', '', text)
+                    description = re.sub(r'<br>', '', description)
+                    description = re.sub(r'£', '', description)
+                match = re.search(r'Season ([0-9]*)\. Episode ([0-9]*) of ([0-9]*)\.',programme)
                 if match:
                     season = match.group(1)
                     episode = match.group(2)
@@ -3231,9 +3226,9 @@ class BBCSource(Source):
                         description = re.sub('&','and',description)
 
                     start = re.sub('[-:TZ]','',start)
-                    start = re.sub('\+',' +',start)
+                    start = re.sub(r'\+',' +',start)
                     end = re.sub('[-:TZ]','',end)
-                    end = re.sub('\+',' +',end)
+                    end = re.sub(r'\+',' +',end)
 
                     type = programme.get('type')
                     series = '0'

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 #
 # TV Guide Fullscreen
-# Copyright (C) 2016 primaeval.dev@gmail.com
+# Copyright (C) 2026 derandere
 #
-#      Original for FTV Guide
-#      bluezed.apps@gmail.com
+#      Python 3 update by derandere
+#      moddet by derandere
 #
-#      Modified for TV Guide Fullscreen (2016)
-#      by primaeval - primaeval.dev@gmail.com
 #
 # This Program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,7 +34,7 @@ import gzip
 import requests
 import hashlib
 
-ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
 
 def log(x):
     xbmc.log(repr(x))

@@ -13,7 +13,7 @@ from vpnapi import VPNAPI
 def log(what):
     xbmc.log(repr(what),xbmc.LOGERROR)
 
-ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
 
 channel = sys.argv[1]
 start = sys.argv[2]
@@ -102,8 +102,8 @@ if ffmpeg:
     for row in c:
         title = row["title"]
         is_movie = row["is_movie"]
-        foldertitle = re.sub("\?",'',title)
-        foldertitle = re.sub(":|<>\/",'',foldertitle)
+        foldertitle = re.sub(r"\?", '', title)
+        foldertitle = re.sub(r":|<>/", '', foldertitle)
         subfolder = "TVShows"
         if is_movie == 'Movie':
             subfolder = "Movies"

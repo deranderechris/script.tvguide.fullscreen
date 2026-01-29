@@ -7,6 +7,8 @@ from html.parser import HTMLParser
 from rpc import RPC
 import requests
 
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
+
 def log(x):
     xbmc.log(repr(x))
 
@@ -19,7 +21,7 @@ def getTVDBId(title):
         html = requests.get(url).content
     except:
         return
-    match = re.search('<a href="(/\?tab=series&amp;id=(.*?))">(.*?)</a>',html)
+    match = re.search(r'<a href="(/\?tab=series&amp;id=(.*?))">(.*?)</a>',html)
     tvdb_url = ''
     if match:
         id = match.group(2)
@@ -34,7 +36,7 @@ def getIMDBId(title, year):
     try: html = requests.get(url).content
     except: return
 
-    match = re.search('href="(http://www.imdb.com/title/(tt.*?)/)".*?<strong>(.*?)</strong>',html)
+    match = re.search(r'href="(http://www.imdb.com/title/(tt.*?)/)".*?<strong>(.*?)</strong>',html)
     tvdb_url = ''
     if match:
         id = match.group(2)
@@ -50,7 +52,7 @@ for media in ["video","audio","executable"]:
     adds = response["addons"]
     installed_addons = installed_addons + [a['addonid'] for a in adds]
 
-ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
 orig_title = sys.argv[1]
 tv = False
 if len(sys.argv) > 2:
@@ -58,7 +60,7 @@ if len(sys.argv) > 2:
     season = sys.argv[2]
     episode = sys.argv[3]
 year = None
-match = re.search('(.*?)\(([0-9]{4})\)$',orig_title)
+match = re.search(r'(.*?)\(([0-9]{4})\)$',orig_title)
 if match:
     orig_title = match.group(1).strip()
     year = match.group(2)
@@ -86,20 +88,20 @@ for m in match:
     thumb = m[1]
     action = m[2]
     action = HTMLParser().unescape(action)
-    action = re.sub('\?sf_options.*?options_sf','',action)
+    action = re.sub(r'\?sf_options.*?options_sf','',action)
     if tv:
-        action = re.sub('\[%SE%\]',episode,action)
-        action = re.sub('\[%SS%\]',season,action)
+        action = re.sub(r'\[%SE%\]',episode,action)
+        action = re.sub(r'\[%SS%\]',season,action)
         if tvdb:
-            action = re.sub('\[%ST%\]',tvdb,action)
+            action = re.sub(r'\[%ST%\]',tvdb,action)
             year = "0" #TODO tv show year
-            action = re.sub('\[%SY%\]',year,action)
+            action = re.sub(r'\[%SY%\]',year,action)
     else:
         if imdb:
-            action = re.sub('\[%SI%\]',imdb,action)
-            action = re.sub('\[%SY%\]',year,action)
-    action = re.sub('\[%SF%\]',title,action)
-    p = re.search('plugin://(.*?)/',action)
+            action = re.sub(r'\[%SI%\]',imdb,action)
+            action = re.sub(r'\[%SY%\]',year,action)
+    action = re.sub(r'\[%SF%\]',title,action)
+    p = re.search(r'plugin://(.*?)/',action)
     if p:
         plugin = p.group(1)
         if plugin in installed_addons:

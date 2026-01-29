@@ -1,12 +1,7 @@
 #
-#      Copyright (C) 2014 Tommy Winther
-#      http://tommy.winther.nu
-#
-#      Modified for FTV Guide (09/2014 onwards)
-#      by Thomas Geppert [bluezed] - bluezed.apps@gmail.com
-#
-#      Modified for TV Guide Fullscreen (2016)
-#      by primaeval - primaeval.dev@gmail.com
+#      Copyright (C) 2026 derandere
+#      Python 3 update by derandere
+#      moddet by derandere
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -613,7 +608,7 @@ class TVGuide(xbmcgui.WindowXML):
             #plugin://plugin.video.XXX/play_archive/%I/%Y-%m-%d:%H-%M/%T/%D
             startDate = program.startDate
             year = ""
-            match = re.search('(.*?) \(([0-9]{4})\)',program.title)
+            match = re.search(r'(.*?) \(([0-9]{4})\)',program.title)
             if match:
                 name = match.group(1)
                 year = match.group(2)
@@ -941,7 +936,7 @@ class TVGuide(xbmcgui.WindowXML):
         url = self.database.getStreamUrl(channel)
         if url:
             if url.startswith('plugin://'):
-                match = re.search('plugin://(.*?)/.*',url)
+                match = re.search(r'plugin://(.*?)/.*',url)
                 if match:
                     id = match.group(1)
                     addon = xbmcaddon.Addon(id)
@@ -949,7 +944,7 @@ class TVGuide(xbmcgui.WindowXML):
                     icon = addon.getAddonInfo('icon')
             else:
                 name = "url"
-                icon = xbmcaddon.Addon('script.tvguide.fullscreen').getAddonInfo('icon')
+                icon = xbmcaddon.Addon('script.tvguide.fullscreen.reborn').getAddonInfo('icon')
         stream = ""
         title = ""
         if ADDON.getSetting('stream.addon.list') == 'true':
@@ -1135,7 +1130,7 @@ class TVGuide(xbmcgui.WindowXML):
         elif action.getId() in COMMAND_ACTIONS["EXTENDED_INFO"]:
             program = self._getProgramFromControl(controlInFocus)
             title = program.title
-            match = re.search('(.*?)\([0-9]{4}\)$',title)
+            match = re.search(r'(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
                 program.is_movie = "Movie"
@@ -2155,7 +2150,7 @@ class TVGuide(xbmcgui.WindowXML):
         elif buttonClicked == PopupMenu.C_POPUP_PLAY_BEGINNING:
             title = program.title.replace(" ", "%20").replace(",", "").replace("\u2013", "-")
             title = str.encode(title, "ascii", "ignore")
-            match = re.search('(.*?)\([0-9]{4}\)$',title)
+            match = re.search(r'(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
                 program.is_movie = "Movie"
@@ -2202,7 +2197,7 @@ class TVGuide(xbmcgui.WindowXML):
                 xbmc.executebuiltin("ActivateWindow(10134)")
         elif buttonClicked == PopupMenu.C_POPUP_EXTENDED:
             title = program.title
-            match = re.search('(.*?)\([0-9]{4}\)$',title)
+            match = re.search(r'(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
                 program.is_movie = "Movie"
@@ -2442,7 +2437,7 @@ class TVGuide(xbmcgui.WindowXML):
                     season = program.season
                     episode = program.episode
                     movie = program.is_movie
-                    match = re.search('(.*?) \(([0-9]{4})\)',program.title)
+                    match = re.search(r'(.*?) \(([0-9]{4})\)',program.title)
                     if match:
                         title = match.group(1)
                         year = match.group(2)
@@ -2458,7 +2453,7 @@ class TVGuide(xbmcgui.WindowXML):
                         season = prog.season
                         episode = prog.episode
                         movie = prog.is_movie
-                        match = re.search('(.*?) \(([0-9]{4})\)',prog.title)
+                        match = re.search(r'(.*?) \(([0-9]{4})\)',prog.title)
                         if match:
                             title = match.group(1)
                             year = match.group(2)
@@ -2518,7 +2513,7 @@ class TVGuide(xbmcgui.WindowXML):
                     icon = addon.getAddonInfo('icon')
             else:
                 name = "url"
-                icon = xbmcaddon.Addon('script.tvguide.fullscreen').getAddonInfo('icon')
+                icon = xbmcaddon.Addon('script.tvguide.fullscreen.reborn').getAddonInfo('icon')
         try:
             control = self.getControl(self.C_MAIN_ADDON_LABEL)
             if control:
@@ -2590,7 +2585,7 @@ class TVGuide(xbmcgui.WindowXML):
                         tvdb_id = tvdb_match.group(1)
                         url = 'http://thetvdb.com/?tab=series&id=%s' % tvdb_id
                         html = requests.get(url).content
-                        match = re.search('<img src="(/banners/_cache/fanart/original/.*?\.jpg)"',html)
+                        match = re.search(r'<img src="(/banners/_cache/fanart/original/.*?\.jpg)"',html)
                         if match:
                             img = "http://thetvdb.com%s" % re.sub('amp;','',match.group(1))
 
@@ -2655,7 +2650,7 @@ class TVGuide(xbmcgui.WindowXML):
             html = requests.get(url).content
         except:
             return
-        match = re.search('<a href="(/\?tab=series&amp;id=.*?)">(.*?)</a>',html)
+        match = re.search(r'<a href="(/\?tab=series&amp;id=.*?)">(.*?)</a>',html)
         tvdb_url = ''
         if match:
             url = "http://thetvdb.com%s" % re.sub('amp;','',match.group(1))
@@ -2685,7 +2680,7 @@ class TVGuide(xbmcgui.WindowXML):
                 except:
                     return
                 for type in ["fanart/original","posters","graphical"]:
-                    match = re.search('<img src="(/banners/_cache/%s/.*?\.jpg)"' % type,html)
+                    match = re.search(r'<img src="(/banners/_cache/%s/.*?\.jpg)"' % type,html)
                     if match:
                         tvdb_url = "http://thetvdb.com%s" % re.sub('amp;','',match.group(1))
                         break
@@ -2707,7 +2702,7 @@ class TVGuide(xbmcgui.WindowXML):
             html = requests.get(url).content
         except:
             return
-        match = re.search('<a href="/\?tab=series&amp;id=([0-9]*)',html)
+        match = re.search(r'<a href="/\?tab=series&amp;id=([0-9]*)',html)
         if match:
             id = match.group(1)
             return id
@@ -2723,12 +2718,12 @@ class TVGuide(xbmcgui.WindowXML):
         try: html = requests.get(url).content
         except: return
 
-        match = re.search('href="(http://www.imdb.com/title/tt.*?/)".*?<strong>(.*?)</strong>',html)
+        match = re.search(r'href="(http://www.imdb.com/title/tt.*?/)".*?<strong>(.*?)</strong>',html)
         tvdb_url = ''
         if match:
             url = match.group(1)
             name = match.group(2)
-            name = re.sub('\([0-9]*$','',name)
+            name = re.sub(r'\([0-9]*$', '', name)
             name = name.strip()
             found = False
             imdb_match = ADDON.getSetting('imdb.match')
@@ -2999,7 +2994,7 @@ class TVGuide(xbmcgui.WindowXML):
 
             title = program.title.replace(" ", "%20").replace(",", "").replace("\u2013", "-")
             title = str.encode(title, "ascii", "ignore")
-            match = re.search('(.*?)\([0-9]{4}\)$',title)
+            match = re.search(r'(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
                 program.is_movie = "Movie"
@@ -5703,7 +5698,7 @@ class StreamSetupDialog(xbmcgui.WindowXMLDialog):
                     playlist_streams = {}
                     for name,url in matches:
                         name = remove_formatting(name.strip())
-                        name = re.sub('[\|=:\\\/]','',name)
+                        name = re.sub(r'[\|=:/\\]', '', name)
                         playlist_streams[name.strip()] = url.strip()
 
                     #TODO make this a function

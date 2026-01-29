@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-#      Copyright (C) 2012 Tommy Winther
-#      http://tommy.winther.nu
-#
-#      Modified for FTV Guide (09/2014 onwards)
-#      by Thomas Geppert [bluezed] - bluezed.apps@gmail.com
-#
-#      Modified for TV Guide Fullscreen (2016)
-#      by primaeval - primaeval.dev@gmail.com
+#      Copyright (C) 2026 derandere
+#      Python 3 update by derandere
+#      moddet by derandere
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,7 +21,7 @@
 #
 import xbmcaddon
 
-ADDON = xbmcaddon.Addon(id = 'script.tvguide.fullscreen')
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
 
 NO_DESCRIPTION = 30000
 CALCULATING_REMAINING_TIME = 30002

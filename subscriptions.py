@@ -9,7 +9,7 @@ from rpc import RPC
 def log(x):
     xbmc.log(repr(x))
 
-ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
 
 file_name = 'special://profile/addon_data/script.tvguide.fullscreen/subscriptions.ini'
 f = xbmcvfs.File(file_name,"rb")

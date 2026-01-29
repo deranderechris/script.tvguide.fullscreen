@@ -4,10 +4,8 @@
 #      http://tommy.winther.nu
 #
 #      Modified for FTV Guide (09/2014 onwards)
-#      by Thomas Geppert [bluezed] - bluezed.apps@gmail.com
-#
-#      Modified for TV Guide Fullscreen (2016)
-#      by primaeval - primaeval.dev@gmail.com
+#      Modified for TV Guide Fullscreen
+#      moddet by derandere
 #
 #  This Program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -32,7 +30,7 @@ import source as src
 
 from strings import *
 
-ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen')
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
 
 
 class Autoplay(object):

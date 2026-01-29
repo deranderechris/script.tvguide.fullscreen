@@ -47,7 +47,7 @@ def deleteDB():
 
         return passed
 
-    except Exception, e:
+    except Exception as e:
         xbmc.log('[script.tvguide.fullscreen] Deleting database...EXCEPTION', xbmc.LOGDEBUG)
         return False
 

@@ -2,7 +2,10 @@ from threading import RLock
 try:
     from UserDict import DictMixin
 except ImportError:
-    from collections import Mapping as DictMixin
+    try:
+        from collections.abc import Mapping as DictMixin
+    except ImportError:
+        from collections import Mapping as DictMixin
 
 
 # With lazy loading, we might end up with multiple threads triggering
@@ -61,7 +64,7 @@ class LazyDict(DictMixin):
                     self._fill()
             finally:
                 _fill_lock.release()
-        return self.data.keys()
+        return list(self.data.keys())
 
 
 class LazyList(list):

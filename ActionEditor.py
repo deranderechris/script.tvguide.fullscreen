@@ -364,10 +364,10 @@ def loadCommandActions():
     return edit_commands
 
 if __name__ == '__main__':
-    v = ACTIONS.values()
+    v = list(ACTIONS.values())
     if len(v) != len(set(v)):
         count = {}
-        for x in ACTIONS.values():
+        for x in list(ACTIONS.values()):
             if x in count:
                 log(x)
             else:
@@ -402,7 +402,7 @@ if __name__ == '__main__':
                 elif edit_action == 0:
                     command = command_keys[command_index]
                     actions = edit_commands[command]
-                    add_actions = sorted([x for x in ACTIONS.keys() if x not in actions])
+                    add_actions = sorted([x for x in list(ACTIONS.keys()) if x not in actions])
                     selected_actions = d.multiselect(command,add_actions)
                     if selected_actions:
                         actions = actions + [add_actions[x] for x in selected_actions]

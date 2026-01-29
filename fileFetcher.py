@@ -29,7 +29,7 @@ import xbmcvfs
 import xbmcgui
 import xbmcaddon
 import os
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import datetime,time
 import zlib
 import gzip

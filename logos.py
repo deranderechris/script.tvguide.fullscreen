@@ -4,7 +4,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import requests
 from rpc import RPC
 
@@ -56,7 +56,7 @@ for addonId in sorted(logos):
             label = re.sub(r"\[/?[BI]\]",'',label)
             label = re.sub(r"\[/?COLOR.*?\]",'',label)
             logo = re.sub(r'^image://','',logo)
-            logo = urllib.unquote_plus(logo)
+            logo = urllib.parse.unquote_plus(logo)
             logo = logo.strip('/')
             file_name = "%s/%s.png" % (folder,label)
             if not xbmcvfs.exists(file_name):

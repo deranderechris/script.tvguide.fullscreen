@@ -144,5 +144,5 @@ if __name__ == '__main__':
 
     except source.SourceNotConfiguredException:
         pass  # ignore
-    except Exception, ex:
+    except Exception as ex:
         xbmc.log('[script.tvguide.fullscreen] Uncaught exception in service.py: %s' % str(ex), xbmc.LOGDEBUG)

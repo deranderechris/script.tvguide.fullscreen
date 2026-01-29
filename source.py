@@ -42,13 +42,13 @@ import xbmcgui
 import xbmcvfs
 import xbmcaddon
 import sqlite3
-import HTMLParser
+import html.parser
 import xml.etree.ElementTree as ET
 import requests
 from itertools import chain
 from bs4 import BeautifulSoup
-from urlparse import urlparse
-import htmlentitydefs
+from urllib.parse import urlparse
+import html.entities
 
 import resources.lib.pytz as pytz
 from resources.lib.pytz import timezone
@@ -263,7 +263,7 @@ class Database(object):
 
 
     def eventLoop(self):
-        print 'Database.eventLoop() >>>>>>>>>> starting...'
+        print('Database.eventLoop() >>>>>>>>>> starting...')
         while True:
             self.event.wait()
             self.event.clear()
@@ -273,7 +273,7 @@ class Database(object):
             command = event[0]
             callback = event[1]
 
-            print 'Database.eventLoop() >>>>>>>>>> processing command: ' + command.__name__
+            print('Database.eventLoop() >>>>>>>>>> processing command: ' + command.__name__)
 
             try:
                 result = command(*event[2:])
@@ -293,7 +293,7 @@ class Database(object):
                 xbmc.log('Database.eventLoop() >>>>>>>>>> exception! %s = %s' % (detail,command.__name__), xbmc.LOGERROR)
                 xbmc.executebuiltin("ActivateWindow(Home)")
 
-        print 'Database.eventLoop() >>>>>>>>>> exiting...'
+        print('Database.eventLoop() >>>>>>>>>> exiting...')
 
     def _invokeAndBlockForResult(self, method, *args):
         sqlite3.register_adapter(datetime.datetime, self.adapt_datetime)
@@ -408,7 +408,7 @@ class Database(object):
             self.conn.commit()
 
         c.close()
-        print 'Settings changed: ' + str(settingsChanged)
+        print('Settings changed: ' + str(settingsChanged))
         return settingsChanged
 
     def _isCacheExpired(self, date):
@@ -1258,7 +1258,7 @@ class Database(object):
             '(SELECT 1 FROM autoplaywiths w WHERE w.channel=p.channel AND w.program_title=p.title AND w.source=p.source AND w.type=1 ) AS autoplaywith_scheduled_always, '+
             '(SELECT 1 FROM autoplaywiths w WHERE w.channel=p.channel AND w.program_title=p.title AND w.source=p.source AND w.type=3 AND time(w.start_date,"unixepoch")=time(p.start_date,"unixepoch")) AS autoplaywith_scheduled_daily, '+
             '(SELECT 1 FROM autoplaywiths w WHERE w.channel=p.channel AND w.program_title=p.title AND w.source=p.source AND w.type=2 AND p.is_new = "New") AS autoplaywith_scheduled_new '+
-            'FROM programs p WHERE p.channel IN (\'' + ('\',\''.join(channelMap.keys())) + '\') AND p.source=? AND p.end_date > ? AND p.start_date < ?',
+            'FROM programs p WHERE p.channel IN (\'' + ('\',\''.join(list(channelMap.keys()))) + '\') AND p.source=? AND p.end_date > ? AND p.start_date < ?',
             [self.source.KEY, startTime, endTime])
 
         for row in c:
@@ -2004,15 +2004,15 @@ def unescape2(text):
             # character reference
             try:
                 if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
+                    return chr(int(text[3:-1], 16))
                 else:
-                    return unichr(int(text[2:-1]))
+                    return chr(int(text[2:-1]))
             except ValueError:
                 pass
         else:
             # named entity
             try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+                text = chr(html.entities.name2codepoint[text[1:-1]])
                 if text == "&":
                     text = "&amp;"
             except KeyError:
@@ -2245,7 +2245,7 @@ class XMLTVSource(Source):
             throwaway = datetime.datetime.strptime('20110101','%Y%m%d') #BUG FIX http://stackoverflow.com/questions/16309650/python-importerror-for-strptime-in-spyder-for-windows-7
         except:
             pass
-        event, root = context.next()
+        event, root = next(context)
         elements_parsed = 0
 
         data = xbmcvfs.File('special://profile/addon_data/script.tvguide.fullscreen/channel_id_shortcut.ini','rb').read()
@@ -2316,7 +2316,7 @@ class XMLTVSource(Source):
                             break
 
                     if episode_num is not None:
-                        episode_num = unicode.encode(unicode(episode_num), 'ascii','ignore')
+                        episode_num = str.encode(str(episode_num), 'ascii','ignore')
                         if str.find(episode_num, ".") != -1:
                             splitted = str.split(episode_num, ".")
                             if splitted[0] != "":
@@ -2644,7 +2644,7 @@ class YoSource(Source):
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
         try:
             r = requests.get(url,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
             return html
         except:
             return ''
@@ -2683,7 +2683,7 @@ class YoSource(Source):
             if headend:
                 r = s.get('http://%s.yo.tv/settings/headend/%s' % (country_id,headend),verify=False,stream=True,headers=headers)
             r = s.get('http://%s.yo.tv/' % country_id,verify=False,stream=True,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
 
             channels = html.split('<li><a data-ajax="false"')
             channel_numbers = {}
@@ -2720,7 +2720,7 @@ class YoSource(Source):
                 if channel_number in visible_channels:
                     channel_url = 'http://%s.yo.tv/tv_guide/channel/%s/%s' % (country_id,channel_number,orig_channel_name)
                     r = s.get(channel_url,verify=False,stream=True,headers=headers)
-                    html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+                    html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
                     now = datetime.datetime.now()
                     year = now.year
                     month = now.month
@@ -2862,7 +2862,7 @@ class YoNowSource(Source):
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
         try:
             r = requests.get(url,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
             return html
         except:
             return ''
@@ -2905,7 +2905,7 @@ class YoNowSource(Source):
             if headend:
                 r = s.get('http://%s.yo.tv/settings/headend/%s' % (country,headend),verify=False,stream=True,headers=headers)
             r = s.get('http://%s.yo.tv/' % country,verify=False,stream=True,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
             #log(html)
             channels = html.split('<li><a data-ajax="false"')
             channel_numbers = {}
@@ -3131,7 +3131,7 @@ class BBCSource(Source):
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
         try:
             r = requests.get(url,headers=headers)
-            html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+            html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
             return html
         except:
             return ''
@@ -3333,7 +3333,7 @@ class FixturesSource(Source):
             if timezone != "None":
                 s = requests.Session()
                 #r = s.get("http://www.getyourfixtures.com/setCookie.php?offset=%s" % timezone)
-                r = s.get(url, cookies={"userTimeZoneGyf":urllib.quote_plus(timezone)})
+                r = s.get(url, cookies={"userTimeZoneGyf":urllib.parse.quote_plus(timezone)})
                 data = r.content
             else:
                 data = requests.get(url).content

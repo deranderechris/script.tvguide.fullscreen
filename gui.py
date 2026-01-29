@@ -25,12 +25,12 @@
 #
 import traceback
 import datetime
-import thread
+import _thread
 import threading
 import time
 import re
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import subprocess
 import xbmc
 import xbmcgui
@@ -444,7 +444,7 @@ class TVGuide(xbmcgui.WindowXML):
                 try:
                     self.tvdb_urls = pickle.load(f)
                     if len(self.tvdb_urls) > 1000:
-                        k = self.tvdb_urls.keys()
+                        k = list(self.tvdb_urls.keys())
                         k.reverse()
                         while len(self.tvdb_urls) > 1000:
                             self.tvdb_urls.pop(k.pop(),None)
@@ -623,8 +623,8 @@ class TVGuide(xbmcgui.WindowXML):
             url = url.replace("%H",str(startDate.hour))
             url = url.replace("%M",str(startDate.minute))
             url = url.replace("%I",id)
-            url = url.replace("%T",urllib.quote_plus(name.encode("utf8")))
-            url = url.replace("%W",urllib.quote_plus(name.encode("utf8")))
+            url = url.replace("%T",urllib.parse.quote_plus(name.encode("utf8")))
+            url = url.replace("%W",urllib.parse.quote_plus(name.encode("utf8")))
             url = url.replace("%S",str(program.season))
             url = url.replace("%E",str(program.episode))
             url = url.replace("%D",str(minutes))
@@ -1257,7 +1257,7 @@ class TVGuide(xbmcgui.WindowXML):
                             categories[cat] = []
                         items = list()
                         order = ADDON.getSetting("cat.order").split('|')
-                        new_categories = ["All Channels"] + sorted(categories.keys(), key=lambda x: order.index(x) if x in order else x.lower())
+                        new_categories = ["All Channels"] + sorted(list(categories.keys()), key=lambda x: order.index(x) if x in order else x.lower())
                         for label in new_categories:
                             item = xbmcgui.ListItem(label)
                             items.append(item)
@@ -2153,8 +2153,8 @@ class TVGuide(xbmcgui.WindowXML):
             xbmc.executebuiltin('ActivateWindow(Videos,addons://sources/video/)')
 
         elif buttonClicked == PopupMenu.C_POPUP_PLAY_BEGINNING:
-            title = program.title.replace(" ", "%20").replace(",", "").replace(u"\u2013", "-")
-            title = unicode.encode(title, "ascii", "ignore")
+            title = program.title.replace(" ", "%20").replace(",", "").replace("\u2013", "-")
+            title = str.encode(title, "ascii", "ignore")
             match = re.search('(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
@@ -2189,7 +2189,7 @@ class TVGuide(xbmcgui.WindowXML):
                     else:
                         xbmc.executebuiltin('RunScript(%s,%s)' % (script, program.title))
             else:
-                xbmc.executebuiltin('ActivateWindow(10025,"plugin://plugin.program.super.favourites/?mode=0&keyword=%s",return)' % urllib.quote_plus(program.title))
+                xbmc.executebuiltin('ActivateWindow(10025,"plugin://plugin.program.super.favourites/?mode=0&keyword=%s",return)' % urllib.parse.quote_plus(program.title))
         elif buttonClicked == PopupMenu.C_POPUP_FAVOURITES:
             favourites = ADDON.getSetting('favourites')
             if favourites == 'Simple Favourites':
@@ -2539,14 +2539,14 @@ class TVGuide(xbmcgui.WindowXML):
         unique = False
         if ADDON.getSetting('omdb') == 'true':
             if year:
-                url = 'http://www.omdbapi.com/?t=%s&y=%s&plot=short&r=json&type=movie' % (urllib.quote_plus(title.encode("utf8")),year)
+                url = 'http://www.omdbapi.com/?t=%s&y=%s&plot=short&r=json&type=movie' % (urllib.parse.quote_plus(title.encode("utf8")),year)
             elif movie:
-                url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json&type=movie' % (urllib.quote_plus(title.encode("utf8")))
+                url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json&type=movie' % (urllib.parse.quote_plus(title.encode("utf8")))
             elif season and episode:
                 unique = True
-                url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json&type=episode&Season=%s&Episode=%s' % (urllib.quote_plus(title.encode("utf8")),season,episode)
+                url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json&type=episode&Season=%s&Episode=%s' % (urllib.parse.quote_plus(title.encode("utf8")),season,episode)
             else:
-                url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json' % urllib.quote_plus(title.encode("utf8"))
+                url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json' % urllib.parse.quote_plus(title.encode("utf8"))
             try: data = requests.get(url).content
             except: data = ''
 
@@ -2616,11 +2616,11 @@ class TVGuide(xbmcgui.WindowXML):
 
     def getOMDbInfo(self,program_title,title,year,season,episode):
         if year:
-            url = 'http://www.omdbapi.com/?t=%s&y=%s&plot=short&r=json&type=movie' % (urllib.quote_plus(title),year)
+            url = 'http://www.omdbapi.com/?t=%s&y=%s&plot=short&r=json&type=movie' % (urllib.parse.quote_plus(title),year)
         elif season and episode:
-            url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json&type=episode&Season=%s&Episode=%s' % (urllib.quote_plus(title),season,episode)
+            url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json&type=episode&Season=%s&Episode=%s' % (urllib.parse.quote_plus(title),season,episode)
         else:
-            url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json' % urllib.quote_plus(title)
+            url = 'http://www.omdbapi.com/?t=%s&y=&plot=short&r=json' % urllib.parse.quote_plus(title)
         try: data = requests.get(url).content
         except: return
         try:
@@ -2649,8 +2649,8 @@ class TVGuide(xbmcgui.WindowXML):
     def getTVDBImage(self, title, season, episode, load=True):
         orig_title = title
         try: title = title.encode("utf8")
-        except: title = unicode(title)
-        url = "http://thetvdb.com/?string=%s&searchseriesid=&tab=listseries&function=Search" % urllib.quote_plus(title)
+        except: title = str(title)
+        url = "http://thetvdb.com/?string=%s&searchseriesid=&tab=listseries&function=Search" % urllib.parse.quote_plus(title)
         try:
             html = requests.get(url).content
         except:
@@ -2701,8 +2701,8 @@ class TVGuide(xbmcgui.WindowXML):
     def getTVDBId(self, title):
         orig_title = title
         try: title = title.encode("utf8")
-        except: title = unicode(title)
-        url = "http://thetvdb.com/?string=%s&searchseriesid=&tab=listseries&function=Search" % urllib.quote_plus(title)
+        except: title = str(title)
+        url = "http://thetvdb.com/?string=%s&searchseriesid=&tab=listseries&function=Search" % urllib.parse.quote_plus(title)
         try:
             html = requests.get(url).content
         except:
@@ -2717,9 +2717,9 @@ class TVGuide(xbmcgui.WindowXML):
     def getIMDBImage(self, title, year, load=True):
         orig_title = "%s (%s)" % (title,year)
         try: utf_title = orig_title.encode("utf8")
-        except: utf_title = unicode(utf_title)
+        except: utf_title = str(utf_title)
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
-        url = "http://www.bing.com/search?q=site%%3Aimdb.com+%s" % urllib.quote_plus(utf_title)
+        url = "http://www.bing.com/search?q=site%%3Aimdb.com+%s" % urllib.parse.quote_plus(utf_title)
         try: html = requests.get(url).content
         except: return
 
@@ -2767,9 +2767,9 @@ class TVGuide(xbmcgui.WindowXML):
     def getIMDBId(self, title, year):
         orig_title = "%s (%s)" % (title,year)
         try: utf_title = orig_title.encode("utf8")
-        except: utf_title = unicode(utf_title)
+        except: utf_title = str(utf_title)
         headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
-        url = "http://www.bing.com/search?q=site%%3Aimdb.com+%s" % urllib.quote_plus(utf_title)
+        url = "http://www.bing.com/search?q=site%%3Aimdb.com+%s" % urllib.parse.quote_plus(utf_title)
         try: html = requests.get(url).content
         except: return
 
@@ -2997,8 +2997,8 @@ class TVGuide(xbmcgui.WindowXML):
             timeToAutoplay = ((t.days * 86400) + t.seconds) / 60
             name = "%s-%s" % (program.channel.id,program.startDate)
 
-            title = program.title.replace(" ", "%20").replace(",", "").replace(u"\u2013", "-")
-            title = unicode.encode(title, "ascii", "ignore")
+            title = program.title.replace(" ", "%20").replace(",", "").replace("\u2013", "-")
+            title = str.encode(title, "ascii", "ignore")
             match = re.search('(.*?)\([0-9]{4}\)$',title)
             if match:
                 title = match.group(1).strip()
@@ -3059,7 +3059,7 @@ class TVGuide(xbmcgui.WindowXML):
 
             title = program.title
 
-            tvtitle = urllib.quote_plus(title.encode("utf8"))
+            tvtitle = urllib.parse.quote_plus(title.encode("utf8"))
             label = title
             name = ""
             if program.is_movie:
@@ -3131,12 +3131,12 @@ class TVGuide(xbmcgui.WindowXML):
                 return True
             else:
                 if url.startswith("plugin://plugin.video.%s/movies/play_by_name" % ADDON.getSetting('catchup.text').lower()) and program is not None:
-                    import urllib
-                    title = urllib.quote(program.title)
+                    import urllib.request, urllib.parse, urllib.error
+                    title = urllib.parse.quote(program.title)
                     url += "/%s/%s" % (title, program.language)
                 if url.startswith("plugin://plugin.video.%s/tv/play_by_name" % ADDON.getSetting('catchup.text').lower()) and program is not None:
-                    import urllib
-                    title = urllib.quote(program.title)
+                    import urllib.request, urllib.parse, urllib.error
+                    title = urllib.parse.quote(program.title)
                     url += "%s/%s/%s/%s" % (title, program.season, program.episode, program.language)
                 if url.startswith('@'):
                     if self.vpnswitch: self.api.filterAndSwitch(url[1:], 0, self.vpndefault, True)
@@ -4210,12 +4210,12 @@ class TVGuide(xbmcgui.WindowXML):
                             categories[cat] = []
                         categories[cat].append(name)
 
-                    for name,cat in stream_categories.iteritems():
+                    for name,cat in stream_categories.items():
                         if cat not in categories:
                             categories[cat] = []
                         categories[cat].append(name)
 
-                    for id,cat in stream_id_categories.iteritems():
+                    for id,cat in stream_id_categories.items():
                         if cat not in categories:
                             categories[cat] = []
                         if id in channelNames:
@@ -6165,7 +6165,7 @@ class StreamSetupDialog(xbmcgui.WindowXMLDialog):
             else:
                 folders[self.previousDirsId] = "@"+self.previousDirsId
         f = xbmcvfs.File(file_name,"w")
-        lines = "\n".join(folders.values())
+        lines = "\n".join(list(folders.values()))
         f.write(lines)
         f.close()
 
@@ -6206,11 +6206,11 @@ class StreamSetupDialog(xbmcgui.WindowXMLDialog):
                         stream = "@%s" % stream
                     streams[addonId][name] = stream
                 else:
-                    for k,v in streams[addonId].items():
+                    for k,v in list(streams[addonId].items()):
                         if v == stream or v == "@"+stream:
                            del streams[addonId][k]
 
-        for addon in streams.keys():
+        for addon in list(streams.keys()):
             if len(streams[addon]) == 0:
                 del streams[addon]
 
@@ -6661,7 +6661,7 @@ class CatMenu(xbmcgui.WindowXMLDialog):
                             categories[cat] = []
                         items = list()
                         order = ADDON.getSetting("cat.order").split('|')
-                        new_categories = ["All Channels"] + sorted(categories.keys(), key=lambda x: order.index(x) if x in order else x.lower())
+                        new_categories = ["All Channels"] + sorted(list(categories.keys()), key=lambda x: order.index(x) if x in order else x.lower())
                         for label in new_categories:
                             item = xbmcgui.ListItem(label)
                             items.append(item)

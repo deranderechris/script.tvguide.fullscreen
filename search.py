@@ -2,8 +2,8 @@ import sys
 import xbmc,xbmcaddon,xbmcvfs,xbmcgui
 import sqlite3
 import re
-import urllib
-from HTMLParser import HTMLParser
+import urllib.request, urllib.parse, urllib.error
+from html.parser import HTMLParser
 from rpc import RPC
 import requests
 
@@ -13,8 +13,8 @@ def log(x):
 def getTVDBId(title):
     orig_title = title
     try: title = title.encode("utf8")
-    except: title = unicode(title)
-    url = "http://thetvdb.com/?string=%s&searchseriesid=&tab=listseries&function=Search" % urllib.quote_plus(title)
+    except: title = str(title)
+    url = "http://thetvdb.com/?string=%s&searchseriesid=&tab=listseries&function=Search" % urllib.parse.quote_plus(title)
     try:
         html = requests.get(url).content
     except:
@@ -28,9 +28,9 @@ def getTVDBId(title):
 def getIMDBId(title, year):
     orig_title = "%s (%s)" % (title,year)
     try: utf_title = orig_title.encode("utf8")
-    except: utf_title = unicode(utf_title)
+    except: utf_title = str(utf_title)
     headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
-    url = "http://www.bing.com/search?q=site%%3Aimdb.com+%s" % urllib.quote_plus(utf_title)
+    url = "http://www.bing.com/search?q=site%%3Aimdb.com+%s" % urllib.parse.quote_plus(utf_title)
     try: html = requests.get(url).content
     except: return
 
@@ -62,7 +62,7 @@ match = re.search('(.*?)\(([0-9]{4})\)$',orig_title)
 if match:
     orig_title = match.group(1).strip()
     year = match.group(2)
-title = urllib.quote_plus(orig_title)
+title = urllib.parse.quote_plus(orig_title)
 
 tvdb = None
 imdb = None

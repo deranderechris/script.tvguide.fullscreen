@@ -19,14 +19,14 @@
 #
 import json
 import os
-from itertools import izip_longest
+from itertools import zip_longest
 
 import xbmc
 from strings import ADDON
 from xml.etree import ElementTree as eT
 import xml.etree.cElementTree as ceT
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import xbmcgui
 import xbmcvfs
 import requests
@@ -184,7 +184,7 @@ def get_setting(key, is_list=False):
 def grouper(n, iterable, fillvalue=None):
     """ grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx """
     args = [iter(iterable)] * n
-    return izip_longest(fillvalue=fillvalue, *args)
+    return zip_longest(fillvalue=fillvalue, *args)
 
 #TODO this is wrong
 def get_logo(channel):

@@ -21,7 +21,7 @@ import xbmc,xbmcgui,xbmcaddon,xbmcplugin,xbmcvfs
 import sys
 import re
 import requests
-import HTMLParser
+import html.parser
 import json
 
 def log(x):
@@ -32,7 +32,7 @@ def get_url(url):
     headers = {'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'}
     try:
         r = requests.get(url,headers=headers)
-        html = HTMLParser.HTMLParser().unescape(r.content.decode('utf-8'))
+        html = html.parser.HTMLParser().unescape(r.content.decode('utf-8'))
         return html
     except:
         return ''

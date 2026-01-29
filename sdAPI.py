@@ -150,7 +150,7 @@ class SdAPI(object):
     def get_countries(self):
         data = self._get('available/COUNTRIES')
         countries = []
-        for _, country_list in data.iteritems():
+        for _, country_list in data.items():
             for country in country_list:
                 countries.append(country)
         return countries
@@ -253,7 +253,7 @@ class SdAPI(object):
             batches = list(grouper(3000, prg_list))
             step = (75-10) / len(batches)
             for ctr, batch in enumerate(batches):
-                batch = filter(None, batch)
+                batch = [_f for _f in batch if _f]
                 xbmc.log("[%s] Requesting batch %d with %d items" %
                          (ADDON.getAddonInfo('id'), ctr+1, len(batch)), xbmc.LOGDEBUG)
                 p_resp += self._post('programs', batch)

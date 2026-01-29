@@ -40,13 +40,13 @@ from resources.lib.pytz.tzfile import build_tzinfo, _byte_string
 
 
 try:
-    str
+    unicode
 
 except NameError: # Python 3.x
 
     # Python 3.x doesn't have unicode(), making writing code
     # for Python 2.3 and Python 3.x a pain.
-    str = str
+    unicode = str
 
     def ascii(s):
         r"""

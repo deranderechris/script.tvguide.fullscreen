@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# utils.py – Python 3 cleaned drop-in version
+# utils.py – Python 3 cleaned drop-in version by Sarturn
 #
 import json
 import os

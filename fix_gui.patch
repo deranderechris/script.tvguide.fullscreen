@@ -1,0 +1,15 @@
+diff --git a/gui.py b/gui.py
+index 0000000..1111111 100644
+--- a/gui.py
++++ b/gui.py
+@@ -4048,7 +4048,12 @@ class TVGuide(xbmcgui.WindowXMLDialog):
+
+     def onSourceNotConfigured(self):
+-        xbmcgui.Dialog().ok(strings(LOAD_ERROR_TITLE), strings(LOAD_ERROR_LINE1), strings(CONFIGURATION_ERROR_LINE2))
++        # Kodi 21 erlaubt nur noch 2 Argumente für Dialog().ok
++        msg = f"{strings(LOAD_ERROR_LINE1)}\n{strings(CONFIGURATION_ERROR_LINE2)}"
++        xbmcgui.Dialog().ok(strings(LOAD_ERROR_TITLE), msg)
+
+@@ -678,7 +678,7 @@ class TVGuide(xbmcgui.WindowXMLDialog):
+-        if action.getId() in COMMAND_ACTIONS["CLOSE"] + COMMAND_ACTIONS["UP"] + COMMAND_ACTIONS["CATEGORIES"] and self.mode == None:
++        if action.getId() in COMMAND_ACTIONS["CLOSE"] + COMMAND_ACTIONS["UP"] + COMMAND_ACTIONS.get("CATEGORIES", []) and self.mode == None:

@@ -1,67 +1,233 @@
 import os
+import json
+
 import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
-import json
+
+
+# --------------------------------------------------
+# Logging
+# --------------------------------------------------
+
+def log(msg):
+    xbmc.log(repr(msg), xbmc.LOGERROR)
+
+
+# --------------------------------------------------
+# Constants
+# --------------------------------------------------
+
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
+
+COMMANDS_FILE = 'special://profile/addon_data/script.tvguide.fullscreen/commands.json'
+
+
+# --------------------------------------------------
+# ACTION DEFINITIONS
+# --------------------------------------------------
 
 ACTIONS = {
-"ACTION_ANALOG_FORWARD" : 113,
-"ACTION_ANALOG_MOVE" : 49,
-"ACTION_ANALOG_MOVE_X" : 601,
-"ACTION_ANALOG_MOVE_Y" : 602,
-"ACTION_ANALOG_REWIND" : 114,
-"ACTION_ANALOG_SEEK_BACK" : 125,
-"ACTION_ANALOG_SEEK_FORWARD" : 124,
-"ACTION_ASPECT_RATIO" : 19,
-"ACTION_AUDIO_DELAY" : 161,
-"ACTION_AUDIO_DELAY_MIN" : 54,
-"ACTION_AUDIO_DELAY_PLUS" : 55,
-"ACTION_AUDIO_NEXT_LANGUAGE" : 56,
-"ACTION_BACKSPACE" : 110,
-"ACTION_BIG_STEP_BACK" : 23,
-"ACTION_BIG_STEP_FORWARD" : 22,
-"ACTION_BUILT_IN_FUNCTION" : 122,
-"ACTION_CALIBRATE_RESET" : 48,
-"ACTION_CALIBRATE_SWAP_ARROWS" : 47,
-"ACTION_CHANGE_RESOLUTION" : 57,
-"ACTION_CHANNEL_DOWN" : 185,
-"ACTION_CHANNEL_SWITCH" : 183,
-"ACTION_CHANNEL_UP" : 184,
-"ACTION_CHAPTER_OR_BIG_STEP_BACK" : 98,
-"ACTION_CHAPTER_OR_BIG_STEP_FORWARD" : 97,
-"ACTION_CONTEXT_MENU" : 117,
-"ACTION_COPY_ITEM" : 81,
-"ACTION_CREATE_BOOKMARK" : 96,
-"ACTION_CREATE_EPISODE_BOOKMARK" : 95,
-"ACTION_CURSOR_LEFT" : 120,
-"ACTION_CURSOR_RIGHT" : 121,
-"ACTION_CYCLE_SUBTITLE" : 99,
-"ACTION_DECREASE_PAR" : 220,
-"ACTION_DECREASE_RATING" : 137,
-"ACTION_DELETE_ITEM" : 80,
-"ACTION_ENTER" : 135,
-"ACTION_ERROR" : 998,
-"ACTION_FILTER" : 233,
-"ACTION_FILTER_CLEAR" : 150,
-"ACTION_FILTER_SMS2" : 151,
-"ACTION_FILTER_SMS3" : 152,
-"ACTION_FILTER_SMS4" : 153,
-"ACTION_FILTER_SMS5" : 154,
-"ACTION_FILTER_SMS6" : 155,
-"ACTION_FILTER_SMS7" : 156,
-"ACTION_FILTER_SMS8" : 157,
-"ACTION_FILTER_SMS9" : 158,
-"ACTION_FIRST_PAGE" : 159,
-"ACTION_FORWARD" : 16,
-"ACTION_GESTURE_BEGIN" : 501,
-"ACTION_GESTURE_END" : 599,
-"ACTION_GESTURE_NOTIFY" : 500,
-"ACTION_GESTURE_PAN" : 504,
-"ACTION_GESTURE_ROTATE" : 503,
-"ACTION_GESTURE_SWIPE_DOWN" : 541,
-"ACTION_GESTURE_SWIPE_DOWN_TEN" : 550,
-"ACTION_GESTURE_SWIPE_LEFT" : 511,
+    "ACTION_ANALOG_FORWARD": 113,
+    "ACTION_ANALOG_MOVE": 49,
+    "ACTION_ANALOG_MOVE_X": 601,
+    "ACTION_ANALOG_MOVE_Y": 602,
+    "ACTION_ANALOG_REWIND": 114,
+    "ACTION_ANALOG_SEEK_BACK": 125,
+    "ACTION_ANALOG_SEEK_FORWARD": 124,
+    "ACTION_ASPECT_RATIO": 19,
+    "ACTION_AUDIO_DELAY": 161,
+    "ACTION_AUDIO_DELAY_MIN": 54,
+    "ACTION_AUDIO_DELAY_PLUS": 55,
+    "ACTION_AUDIO_NEXT_LANGUAGE": 56,
+    "ACTION_BACKSPACE": 110,
+    "ACTION_BIG_STEP_BACK": 23,
+    "ACTION_BIG_STEP_FORWARD": 22,
+    "ACTION_BUILT_IN_FUNCTION": 122,
+    "ACTION_CALIBRATE_RESET": 48,
+    "ACTION_CALIBRATE_SWAP_ARROWS": 47,
+    "ACTION_CHANGE_RESOLUTION": 57,
+    "ACTION_CHANNEL_DOWN": 185,
+    "ACTION_CHANNEL_SWITCH": 183,
+    "ACTION_CHANNEL_UP": 184,
+    "ACTION_CONTEXT_MENU": 117,
+    "ACTION_DELETE_ITEM": 80,
+    "ACTION_ENTER": 135,
+    "ACTION_ERROR": 998,
+    "ACTION_FIRST_PAGE": 159,
+    "ACTION_FORWARD": 16,
+    "ACTION_LAST_PAGE": 160,
+    "ACTION_MENU": 163,
+    "ACTION_MOVE_DOWN": 4,
+    "ACTION_MOVE_LEFT": 1,
+    "ACTION_MOVE_RIGHT": 2,
+    "ACTION_MOVE_UP": 3,
+    "ACTION_NEXT_ITEM": 14,
+    "ACTION_PAGE_DOWN": 6,
+    "ACTION_PAGE_UP": 5,
+    "ACTION_PARENT_DIR": 9,
+    "ACTION_PLAY": 68,
+    "ACTION_PLAYER_PLAY": 79,
+    "ACTION_PREV_ITEM": 15,
+    "ACTION_PREVIOUS_MENU": 10,
+    "ACTION_SELECT_ITEM": 7,
+    "ACTION_SHOW_INFO": 11,
+    "ACTION_STOP": 13,
+    "REMOTE_0": 58,
+    "REMOTE_1": 59,
+    "REMOTE_2": 60,
+    "REMOTE_3": 61,
+    "REMOTE_4": 62,
+    "REMOTE_5": 63,
+    "REMOTE_6": 64,
+    "REMOTE_7": 65,
+    "REMOTE_8": 66,
+    "REMOTE_9": 67,
+}
+
+
+COMMANDS = {
+    "CLOSE": ["ACTION_NAV_BACK", "ACTION_PARENT_DIR"],
+    "LEFT": ["ACTION_MOVE_LEFT"],
+    "RIGHT": ["ACTION_MOVE_RIGHT"],
+    "UP": ["ACTION_MOVE_UP"],
+    "DOWN": ["ACTION_MOVE_DOWN"],
+    "PAGE_DOWN": ["ACTION_PAGE_DOWN"],
+    "PAGE_UP": ["ACTION_PAGE_UP"],
+    "NEXT_DAY": ["ACTION_NEXT_ITEM"],
+    "PREV_DAY": ["ACTION_PREV_ITEM"],
+    "PLAY": ["ACTION_SELECT_ITEM"],
+    "STOP": ["ACTION_STOP"],
+    "PLAY_CHOOSE": ["ACTION_PLAY", "ACTION_PLAYER_PLAY"],
+    "CATCHUP": [],
+    "GO_TO_NOW": ["ACTION_FIRST_PAGE"],
+    "NOW_LISTING": ["REMOTE_2"],
+    "NEXT_LISTING": ["REMOTE_3"],
+    "CHANNEL_LISTING": ["REMOTE_1"],
+    "SEARCH": ["REMOTE_4"],
+    "REMINDERS": ["REMOTE_5"],
+    "AUTOPLAYS": ["REMOTE_6"],
+    "AUTOPLAYWITHS": ["REMOTE_7"],
+    "PLAY_NEXT_CHANNEL": ["ACTION_PAGE_UP"],
+    "PLAY_PREV_CHANNEL": ["ACTION_PAGE_DOWN"],
+    "PLAY_LAST_CHANNEL": ["REMOTE_0"],
+    "MENU": ["ACTION_CONTEXT_MENU", "ACTION_PREVIOUS_MENU"],
+}
+
+
+# --------------------------------------------------
+# Command Handling
+# --------------------------------------------------
+
+def getCommandActions():
+    commands = {k: [ACTIONS[a] for a in v if a in ACTIONS] for k, v in COMMANDS.items()}
+
+    if xbmcvfs.exists(COMMANDS_FILE):
+        try:
+            f = xbmcvfs.File(COMMANDS_FILE, 'rb')
+            data = f.read()
+            f.close()
+            if data:
+                user_commands = json.loads(data)
+                for k in user_commands:
+                    commands[k] = user_commands[k]
+        except Exception as e:
+            log(e)
+
+    return commands
+
+
+def translateActions(commands):
+    reverse_actions = {v: k for k, v in ACTIONS.items()}
+    translated = {}
+
+    for command, actions in commands.items():
+        translated[command] = [reverse_actions.get(a, str(a)) for a in actions]
+
+    return translated
+
+
+def loadCommandActions():
+    commands = getCommandActions()
+    return translateActions(commands) if commands else COMMANDS.copy()
+
+
+def saveCommandActions(edit_commands):
+    save_commands = {}
+    for command, actions in edit_commands.items():
+        save_commands[command] = [ACTIONS[a] for a in actions if a in ACTIONS]
+
+    try:
+        f = xbmcvfs.File(COMMANDS_FILE, 'wb')
+        f.write(json.dumps(save_commands, indent=2))
+        f.close()
+    except Exception as e:
+        log(e)
+
+
+# --------------------------------------------------
+# Main UI
+# --------------------------------------------------
+
+if __name__ == '__main__':
+
+    # Check ACTION uniqueness
+    values = list(ACTIONS.values())
+    if len(values) != len(set(values)):
+        xbmcgui.Dialog().notification(
+            "TV Guide Fullscreen",
+            "ACTIONS not unique"
+        )
+
+    edit_commands = loadCommandActions()
+    dialog = xbmcgui.Dialog()
+
+    while True:
+        main_action = dialog.select("Command Editor", ["Edit", "Defaults", "Save"])
+        if main_action == -1:
+            break
+
+        if main_action == 0:
+            while True:
+                labels = []
+                keys = sorted(edit_commands.keys())
+
+                for k in keys:
+                    labels.append(
+                        f"{k.lower().replace('_',' ')} [COLOR dimgray]{','.join(edit_commands[k])}[/COLOR]"
+                    )
+
+                idx = dialog.select("Commands", labels)
+                if idx == -1:
+                    break
+
+                cmd = keys[idx]
+                choice = dialog.select(cmd, ["Add", "Remove"])
+                if choice == -1:
+                    break
+
+                if choice == 0:
+                    available = sorted([a for a in ACTIONS.keys() if a not in edit_commands[cmd]])
+                    selected = dialog.multiselect(cmd, available)
+                    if selected:
+                        edit_commands[cmd] += [available[i] for i in selected]
+
+                elif choice == 1:
+                    selected = dialog.multiselect(cmd, edit_commands[cmd])
+                    if selected:
+                        edit_commands[cmd] = [
+                            edit_commands[cmd][i]
+                            for i in range(len(edit_commands[cmd]))
+                            if i not in selected
+                        ]
+
+        elif main_action == 1:
+            edit_commands = COMMANDS.copy()
+
+        elif main_action == 2:
+            saveCommandActions(edit_commands)
+            break
 "ACTION_GESTURE_SWIPE_LEFT_TEN" : 520,
 "ACTION_GESTURE_SWIPE_RIGHT" : 521,
 "ACTION_GESTURE_SWIPE_RIGHT_TEN" : 530,

@@ -1,29 +1,137 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.tvguide.fullscreen.reborn" name="TV Guide Fullscreen Reborn"
-version="1.0.0"
-provider-name="derandere,Sarturn">
-    <requires>
-        <import addon="xbmc.python" version="3.0.1"/>
-        <import addon="script.module.requests" version="2.31.0" />
-        <import addon="script.module.dateutil" version="2.8.2" />
-        <import addon="script.module.pillow" version="10.2.0" />
-        <import addon="script.module.beautifulsoup4" version="4.12.2" />
-    </requires>
-    <extension point="xbmc.python.script" library="addon.py">
-            <provides>executable</provides>
-    </extension>
-    <extension point="xbmc.service" library="service.py" start="login"/>
-    <extension point="xbmc.addon.metadata">
-        <description lang="en">Possibly the most powerful TV Guide in the world. Thanks to previous contributors.</description>
-        <disclaimer lang="en">Based on the original TV Guide addon by twinther, FTV Guide and Midraal's fork.</disclaimer>
-        <language></language>
-        <platform>all</platform>
-        <license>GPLv2</license>
-        <forum>http://forum.kodi.tv/showthread.php?tid=282157</forum>
-        <source>https://github.com/primaeval/script.tvguide.fullscreen</source>
-        <website>https://github.com/primaeval/script.tvguide.fullscreen</website>
-        <email>primaeval</email>
-        <news>
-        </news>
-    </extension>
-</addon>
+# -*- coding: utf-8 -*-
+#
+#      Copyright (C) 2026 derandere, Sarturn
+#      Python 3 update by derandere., Sarturn
+#      modified by derandere, Sarturn
+#
+#  This Program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2, or (at your option)
+#  any later version.
+#
+#  This Program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#  See the GNU General Public License for more details.
+#
+
+import sys
+import os
+import stat
+import traceback
+
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcvfs
+
+
+# ------------------------------------------------------------
+# Startup notification
+# ------------------------------------------------------------
+xbmcgui.Dialog().notification(
+    "TV Guide Fullscreen",
+    "loading...",
+    sound=False
+)
+
+
+# ------------------------------------------------------------
+# Addon instance
+# ------------------------------------------------------------
+ADDON = xbmcaddon.Addon(id='script.tvguide.fullscreen.reborn')
+
+
+# ------------------------------------------------------------
+# Optional ffmpeg chmod (disabled on purpose)
+# ------------------------------------------------------------
+"""
+ffmpeg = ADDON.getSetting('autoplaywiths.ffmpeg')
+if ffmpeg:
+    try:
+        st = os.stat(ffmpeg)
+        os.chmod(ffmpeg, st.st_mode | stat.S_IEXEC)
+    except Exception:
+        xbmc.log("ffmpeg chmod failed", xbmc.LOGWARNING)
+"""
+
+
+# ------------------------------------------------------------
+# sys.argv handling (safe)
+# ------------------------------------------------------------
+if len(sys.argv) > 1:
+    category = sys.argv[1]
+    if category:
+        ADDON.setSetting('category', category)
+
+if len(sys.argv) > 2:
+    source = ADDON.getSetting('source.source')
+    new_source = sys.argv[2]
+    if new_source != source:
+        ADDON.setSetting('source.source', new_source)
+
+channel = ""
+if len(sys.argv) > 3:
+    channel = sys.argv[3]
+
+ADDON.setSetting('channel.arg', channel)
+
+
+# ------------------------------------------------------------
+# Asset handling
+# ------------------------------------------------------------
+assets = [
+    (
+        'special://profile/addon_data/script.tvguide.fullscreen/backgrounds/sunburst.png',
+        'https://raw.githubusercontent.com/primaeval/assets/master/backgrounds/sunburst.png'
+    ),
+    (
+        'special://profile/addon_data/script.tvguide.fullscreen/backgrounds/charcoal.png',
+        'https://raw.githubusercontent.com/primaeval/assets/master/backgrounds/charcoal.png'
+    ),
+]
+
+if ADDON.getAddonInfo('id').endswith('fullscreen'):
+    for dst, src in assets:
+        try:
+            if not xbmcvfs.exists(dst):
+                xbmcvfs.copy(src, dst)
+        except Exception as e:
+            xbmc.log(
+                "Asset copy failed: %s" % repr(e),
+                xbmc.LOGWARNING
+            )
+
+
+# ------------------------------------------------------------
+# actions.json → profile copy
+# ------------------------------------------------------------
+try:
+    xbmcvfs.copy(
+        'special://home/addons/script.tvguide.fullscreen/resources/actions.json',
+        'special://profile/addon_data/script.tvguide.fullscreen/actions.json'
+    )
+except Exception as e:
+    xbmc.log(
+        "actions.json copy failed: %s" % repr(e),
+        xbmc.LOGWARNING
+    )
+
+
+# ------------------------------------------------------------
+# GUI start
+# ------------------------------------------------------------
+try:
+    import gui
+
+    w = gui.TVGuide()
+    w.doModal()
+    del w
+
+except Exception:
+    etype, value, tb = sys.exc_info()
+    traceback.print_exception(etype, value, tb)
+    xbmc.log(
+        "TVGuide crashed: %s" % repr(value),
+        xbmc.LOGERROR
+    )
